@@ -17,12 +17,12 @@
         console.log("success: " + db);
     };
     $(function () {
-        var listId = createList("test");
-        createCard(listId, "testCard", "Ankur", ["tag1", "tag2"]);
-        listId = createList("test2");
-        console.log(data);
+        // var listId = createList("test");
+        // createCard(listId, "testCard", "Ankur", ["tag1", "tag2"]);
+        // listId = createList("test2");
+        // console.log(data);
+        data = readFromLocalStorage() || {};
         render();
-
 
         // read();
     });
@@ -52,12 +52,24 @@
         delete data[id];
     }
 
-    function editCard() {
+    function editCard(listId, newData) {
+        data[listId] = newData;
+    }
 
+    function deleteCard(listId, cardId) {
+        delete data[listId].cards[cardId];
+    }
+
+    function moveCard(sourceList, targetListId, cardId) {
+        var card = data[sourceList].cards[cardId];
+        var newId = data[targetListId].cardCounter++;
+        data[targetListId].cards[newId] = card;
+        delete data[sourceList].cards[cardId];
+        render();
     }
 
     function render() {
-
+        writeToLocalStorage();
         var taskContainer = $('#taskContainer');
         taskContainer.html("");
         var x = "test";
@@ -71,7 +83,7 @@
                     <div class="panel-heading">${list.name}
                     <button onclick="onDeleteList(${listId})">Del</button>
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body" ondrop="drop(event,${listId})" ondragover="allowDrop(event)">
                         <input type="text" placeholder="description" class="cardName">
                         <input type="text" class="user" placeholder="UserName" >
                         <input type="text" placeholder="Tags"  class="tags">
@@ -81,14 +93,9 @@
                 </div>
             </div>`;
             taskContainer.append(listTemplate);
-
             renderCard(listId);
-
-
         }
     }
-
-
 
     function renderCard(listId) {
         var list = data[listId];
@@ -96,7 +103,7 @@
             var card = list.cards[cardId];
             var tags = card.tags && card.tags.join(",");
             var cardTemplate = `
-                <div class="card" draggable="true" ondragstart="drag(event,${listId},${cardId})" ondrop="drop(event,${listId})" ondragover="allowDrop(event)">
+                <div class="card" draggable="true" ondragstart="drag(event,${listId},${cardId})">
                     <div class="description">
                         ${card.desc}
                     </div>
@@ -106,6 +113,14 @@
                 `;
             $("#list_" + listId).find('.panel-body').append(cardTemplate);
         }
+    }
+
+    function writeToLocalStorage() {
+        window.localStorage.setItem("data", JSON.stringify(data));
+    }
+
+    function readFromLocalStorage() {
+        return JSON.parse(window.localStorage.getItem("data"));
     }
 
     function add() {
@@ -167,7 +182,7 @@
         render();
     };
 
-    window.drag = function (ev, listId) {
+    window.drag = function (ev, listId, cardId) {
         ev.dataTransfer.setData("listId", listId);
         ev.dataTransfer.setData("cardId", cardId);
     };
@@ -176,11 +191,13 @@
         ev.preventDefault();
     }
 
-    window.drop = function drop(ev) {
+    window.drop = function drop(ev, targetListId) {
         ev.preventDefault();
         var sourceList = ev.dataTransfer.getData("listId");
         var cardId = ev.dataTransfer.getData("cardId");
-
+        moveCard(sourceList, targetListId, cardId);
     };
+
+
 
 }(window));
