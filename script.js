@@ -17,7 +17,8 @@
     // };
 
     $(function () {
-        data = readFromLocalStorage() || {};
+        data = readFromLocalStorage("data") || {};
+        listCount = readFromLocalStorage("listCount") || 0;
         render();
     });
 
@@ -113,11 +114,13 @@
 
     function writeToLocalStorage() {
         window.localStorage.setItem("data", JSON.stringify(data));
+        window.localStorage.setItem("listCount", JSON.stringify(listCount));
     }
 
-    function readFromLocalStorage() {
-        return JSON.parse(window.localStorage.getItem("data"));
+    function readFromLocalStorage(key) {
+        return JSON.parse(window.localStorage.getItem(key));
     }
+
 
     // function add() {
     //     var request = db.transaction(["task"], "readwrite")
