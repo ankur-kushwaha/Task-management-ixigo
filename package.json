@@ -7,5 +7,9 @@
     "start": "live-server"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.0"
+  }
 }
