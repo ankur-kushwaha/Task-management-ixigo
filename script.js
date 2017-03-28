@@ -4,27 +4,21 @@
     var data = {}
 
 
-    var db;
-    var request = window.indexedDB.open("newDatabase", 1);
+    // var db;
+    // var request = window.indexedDB.open("newDatabase", 1);
 
-    request.onerror = function (event) {
-        console.log("error: ");
-    };
+    // request.onerror = function (event) {
+    //     console.log("error: ");
+    // };
 
-    request.onsuccess = function (event) {
-        db = request.result;
-        //read();
-        console.log("success: " + db);
-    };
+    // request.onsuccess = function (event) {
+    //     db = request.result;
+    //     console.log("success: " + db);
+    // };
+
     $(function () {
-        // var listId = createList("test");
-        // createCard(listId, "testCard", "Ankur", ["tag1", "tag2"]);
-        // listId = createList("test2");
-        // console.log(data);
         data = readFromLocalStorage() || {};
         render();
-
-        // read();
     });
 
     function createList(name) {
@@ -62,7 +56,7 @@
 
     function moveCard(sourceList, targetListId, cardId) {
         var card = data[sourceList].cards[cardId];
-        var newId = data[targetListId].cardCounter++;
+        var newId = ++data[targetListId].cardCounter;
         data[targetListId].cards[newId] = card;
         delete data[sourceList].cards[cardId];
         render();
@@ -73,10 +67,10 @@
         var taskContainer = $('#taskContainer');
         taskContainer.html("");
         var x = "test";
-
+        var listTemplate;
         for (var listId in data) {
             var list = data[listId];
-            var listTemplate =
+            listTemplate =
                 `
                 <div class="col-lg-3" id="list_${listId}">
                 <div class="panel panel-default">
@@ -99,10 +93,12 @@
 
     function renderCard(listId) {
         var list = data[listId];
+        var card, cardTemplate, tags;
+        var $list = $("#list_" + listId);
         for (var cardId in list.cards) {
-            var card = list.cards[cardId];
-            var tags = card.tags && card.tags.join(",");
-            var cardTemplate = `
+            card = list.cards[cardId];
+            tags = card.tags && card.tags.join(",");
+            cardTemplate = `
                 <div class="card" draggable="true" ondragstart="drag(event,${listId},${cardId})">
                     <div class="description">
                         ${card.desc}
@@ -111,7 +107,7 @@
                     <span class="username">${card.user}</span>
                 </div>
                 `;
-            $("#list_" + listId).find('.panel-body').append(cardTemplate);
+            $list.find('.panel-body').append(cardTemplate);
         }
     }
 
@@ -123,43 +119,43 @@
         return JSON.parse(window.localStorage.getItem("data"));
     }
 
-    function add() {
-        var request = db.transaction(["task"], "readwrite")
-            .objectStore("task")
-            .add({
-                id: "00",
-                data: data
-            });
+    // function add() {
+    //     var request = db.transaction(["task"], "readwrite")
+    //         .objectStore("task")
+    //         .add({
+    //             id: "00",
+    //             data: data
+    //         });
 
-        request.onsuccess = function (event) {
-            db = request.result;
-            console.log("Data saved successfully");
-        };
+    //     request.onsuccess = function (event) {
+    //         db = request.result;
+    //         console.log("Data saved successfully");
+    //     };
 
-        request.onerror = function (event) {
-            console.log("failed to save data");
-        }
-    }
+    //     request.onerror = function (event) {
+    //         console.log("failed to save data");
+    //     }
+    // }
 
-    function read() {
-        var transaction = db.transaction(["task"]);
-        var objectStore = transaction.objectStore("task");
-        var request = objectStore.get("00");
+    // function read() {
+    //     var transaction = db.transaction(["task"]);
+    //     var objectStore = transaction.objectStore("task");
+    //     var request = objectStore.get("00");
 
-        request.onerror = function (event) {
-            console.log("Unable to retrieve data from database!");
-        };
+    //     request.onerror = function (event) {
+    //         console.log("Unable to retrieve data from database!");
+    //     };
 
-        request.onsuccess = function (event) {
-            // Do something with the request.result!
-            if (request.result) {
-                data = request.result.data;
-            } else {
-                console.log("Kenny couldn't be found in your database!");
-            }
-            render();
-        };
-    }
+    //     request.onsuccess = function (event) {
+    //         // Do something with the request.result!
+    //         if (request.result) {
+    //             data = request.result.data;
+    //         } else {
+    //             console.log("Kenny couldn't be found in your database!");
+    //         }
+    //         render();
+    //     };
+    // }
 
     window.addNewList = function () {
         console.log(arguments)
